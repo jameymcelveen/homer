@@ -1,0 +1,20 @@
+[ROOT]
+path=%CWD%/examples/sandbox
+
+[ENSURE-DIR]
+path=src
+
+[WRITE-FILE]
+name=src/hello.txt
+<%
+<!--cobble:start greeting-->
+Hello from Cobble
+<!--cobble:end-->
+%>
+
+[REPLACE]
+name=src/hello.txt
+marker=greeting
+<%
+Hello, World!
+%>

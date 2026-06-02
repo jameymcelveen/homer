@@ -46,3 +46,7 @@ out/
 /tmp/
 /scratch/
 
+# --- Cobble runtime ---
+examples/sandbox/
+**/.cobble/
+

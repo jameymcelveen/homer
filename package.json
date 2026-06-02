@@ -1,0 +1,23 @@
+{
+  "name": "cobble",
+  "version": "0.1.0",
+  "description": "Declarative filesystem DSL + plan/apply CLI",
+  "type": "module",
+  "bin": {
+    "cobble": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/test/**/*.test.js",
+    "plan": "node dist/cli.js plan",
+    "apply": "node dist/cli.js apply"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3"
+  }
+}
