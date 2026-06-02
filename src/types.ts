@@ -26,10 +26,12 @@ export interface WriteOp extends OpBase {
   content: string;
 }
 
-/** Append content to a file. */
+/** Append content to a file (guarded by sentinel markers). */
 export interface AppendOp extends OpBase {
   kind: 'append';
   content: string;
+  /** Sentinel id for idempotent guarded append. */
+  appendId: string;
 }
 
 /** Replace file content (marker or literal find). */

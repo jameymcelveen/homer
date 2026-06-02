@@ -1,5 +1,6 @@
 import type { PlanContext, Op, VerbHandler } from '../types.js';
 import { toRelativePath } from '../jail.js';
+import { wrapAppendBlock, hasAppendBlock } from '../markers.js';
 
 function requireParam(params: Record<string, string>, key: string): string {
   const val = params[key];
@@ -33,10 +34,19 @@ export const writeFile: VerbHandler = (ctx, params, body) => {
 
 export const append: VerbHandler = (ctx, params, body) => {
   const name = requireParam(params, 'name');
+  const id = requireParam(params, 'id');
   if (body === undefined) {
     throw new Error('[APPEND] requires <% body %>');
   }
-  return [{ kind: 'append', path: relPath(ctx, name), content: body }];
+
+  const rel = relPath(ctx, name);
+  const existing = ctx.readFile(rel);
+  if (existing !== null && hasAppendBlock(existing, id)) {
+    return [];
+  }
+
+  const wrapped = wrapAppendBlock(id, body);
+  return [{ kind: 'append', path: rel, content: wrapped, appendId: id }];
 };
 
 export const replace: VerbHandler = (ctx, params, body) => {

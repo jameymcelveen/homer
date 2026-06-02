@@ -1,10 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { CobbleBlock, DiffEntry, Op, PlanContext } from './types.js';
+import type { DiffEntry, Op, PlanContext } from './types.js';
 import { parse } from './parser.js';
 import { resolveRoot, createPathResolver, toRelativePath } from './jail.js';
 import { getVerbHandler } from './verbs/registry.js';
 import { VirtualFs } from './virtual-fs.js';
+import { formatDiff } from './format.js';
+
+export { formatDiff };
 
 /**
  * Parse a .cobble file and expand all blocks into a flat list of ops.
@@ -12,8 +15,8 @@ import { VirtualFs } from './virtual-fs.js';
 export function buildPlan(
   source: string,
   cwd: string = process.cwd(),
-): { root: string; ops: Op[] } {
-  const blocks = parse(source);
+): { root: string; ops: Op[]; version: number } {
+  const { version, blocks } = parse(source);
   const root = resolveRoot(blocks, cwd);
   const resolvePath = createPathResolver(root, cwd);
   const vfs = new VirtualFs(root);
@@ -25,7 +28,7 @@ export function buildPlan(
   const ops: Op[] = [];
 
   for (const block of blocks) {
-    if (block.verb === 'ROOT') {
+    if (block.verb === 'ROOT' || block.verb === 'COBBLE') {
       continue;
     }
 
@@ -41,85 +44,56 @@ export function buildPlan(
     ops.push(...blockOps);
   }
 
-  return { root, ops };
+  return { root, ops, version };
 }
 
 /**
- * Compute human-readable diff entries by simulating ops against current disk.
+ * Compute human-readable diff entries comparing desired end-state to current disk.
  */
 export function computeDiff(root: string, ops: Op[]): DiffEntry[] {
-  const entries: DiffEntry[] = [];
-  const vfs = new VirtualFs(root);
+  const baseline = new VirtualFs(root);
+  const final = new VirtualFs(root);
+  const touchedDirs = new Set<string>();
+  const touchedFiles = new Set<string>();
 
   for (const op of ops) {
-    const entry = diffOp(vfs, op);
-    if (entry) {
-      entries.push(entry);
+    if (op.kind === 'mkdir') {
+      touchedDirs.add(op.path);
+    } else {
+      touchedFiles.add(op.path);
     }
-    vfs.apply(op);
+    final.apply(op);
+  }
+
+  const entries: DiffEntry[] = [];
+
+  for (const dir of touchedDirs) {
+    if (!baseline.dirExists(dir)) {
+      entries.push({ action: '+', description: `mkdir ${dir}` });
+    }
+  }
+
+  for (const file of touchedFiles) {
+    const before = baseline.readFile(file);
+    const after = final.readFile(file);
+    if (before === after) {
+      continue;
+    }
+    if (after === null) {
+      entries.push({ action: '-', description: `delete ${file}` });
+      continue;
+    }
+    if (before === null) {
+      entries.push({ action: '+', description: `write ${file} (${after.length} bytes)` });
+      continue;
+    }
+    entries.push({
+      action: '~',
+      description: `update ${file} (${before.length} → ${after.length} bytes)`,
+    });
   }
 
   return entries;
-}
-
-function diffOp(baseline: VirtualFs, op: Op): DiffEntry | null {
-  switch (op.kind) {
-    case 'mkdir': {
-      if (!baseline.dirExists(op.path)) {
-        return { action: '+', description: `mkdir ${op.path}` };
-      }
-      return null;
-    }
-    case 'write': {
-      const prior = baseline.readFile(op.path);
-      if (prior === op.content) {
-        return null;
-      }
-      if (prior === null) {
-        return { action: '+', description: `write ${op.path} (${op.content.length} bytes)` };
-      }
-      return {
-        action: '~',
-        description: `overwrite ${op.path} (${prior.length} → ${op.content.length} bytes)`,
-      };
-    }
-    case 'append': {
-      const prior = baseline.readFile(op.path);
-      if (prior === null) {
-        return { action: '+', description: `append ${op.content.length} bytes to ${op.path}` };
-      }
-      return { action: '~', description: `append ${op.content.length} bytes to ${op.path}` };
-    }
-    case 'replace': {
-      const prior = baseline.readFile(op.path) ?? '';
-      if (prior === op.resultContent) {
-        return null;
-      }
-      return {
-        action: '~',
-        description: `replace content in ${op.path} (${prior.length} → ${op.resultContent.length} bytes)`,
-      };
-    }
-    case 'delete': {
-      if (baseline.readFile(op.path) !== null) {
-        return { action: '-', description: `delete ${op.path}` };
-      }
-      return null;
-    }
-  }
-}
-
-/** Format diff entries for console output. */
-export function formatDiff(root: string, entries: DiffEntry[]): string {
-  if (entries.length === 0) {
-    return `Plan: no changes (root: ${root})`;
-  }
-
-  const lines = [`Plan (${entries.length} change${entries.length === 1 ? '' : 's'}, root: ${root}):`];
-  for (const e of entries) {
-    lines.push(`  ${e.action} ${e.description}`);
-  }
-  return lines.join('\n');
 }
 
 /** Plan from a .cobble file path — side-effect free. */

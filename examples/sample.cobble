@@ -1,3 +1,5 @@
+[COBBLE v=1]
+
 [ROOT]
 path=%CWD%/examples/sandbox
 
@@ -17,4 +19,11 @@ name=src/hello.txt
 marker=greeting
 <%
 Hello, World!
+%>
+
+[APPEND]
+name=src/hello.txt
+id=footer
+<%
+--- managed by cobble
 %>

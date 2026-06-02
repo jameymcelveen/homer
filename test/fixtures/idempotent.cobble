@@ -1,0 +1,8 @@
+[ROOT]
+path=%CWD%/sandbox
+
+[WRITE-FILE]
+name=stable.txt
+<%
+unchanging content
+%>

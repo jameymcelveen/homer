@@ -1,19 +1,28 @@
 import type { CobbleBlock } from './types.js';
 
 const VERB_RE = /^\[([A-Z][A-Z0-9-]*)\]$/;
+const COBBLE_HEADER_RE = /^\[COBBLE\s+v=(\d+)\]$/i;
 const PARAM_RE = /^([a-zA-Z][a-zA-Z0-9_-]*)=(.*)$/;
 const HEREDOC_OPEN = '<%';
 const HEREDOC_CLOSE = '%>';
 
+/** Result of parsing a .cobble source file. */
+export interface ParseResult {
+  /** Format version from [COBBLE v=N] header; defaults to 1. */
+  version: number;
+  blocks: CobbleBlock[];
+}
+
 /**
  * Parse a .cobble file into an ordered list of blocks.
  */
-export function parse(source: string): CobbleBlock[] {
+export function parse(source: string): ParseResult {
   const lines = source.split(/\r?\n/);
   const blocks: CobbleBlock[] = [];
   let current: CobbleBlock | null = null;
   let inHeredoc = false;
   let heredocLines: string[] = [];
+  let version = 1;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? '';
@@ -42,10 +51,23 @@ export function parse(source: string): CobbleBlock[] {
       continue;
     }
 
+    const cobbleHeader = COBBLE_HEADER_RE.exec(trimmed);
+    if (cobbleHeader) {
+      version = cobbleHeader[1] ? Number(cobbleHeader[1]) : 1;
+      continue;
+    }
+
     const verbMatch = VERB_RE.exec(trimmed);
     if (verbMatch) {
       if (current) {
-        blocks.push(current);
+        if (current.verb !== 'COBBLE') {
+          blocks.push(current);
+        } else {
+          const vParam = current.params['v'];
+          if (vParam) {
+            version = Number(vParam) || version;
+          }
+        }
       }
       current = { verb: verbMatch[1] ?? '', params: {} };
       continue;
@@ -79,10 +101,21 @@ export function parse(source: string): CobbleBlock[] {
   }
 
   if (current) {
-    blocks.push(current);
+    if (current.verb !== 'COBBLE') {
+      blocks.push(current);
+    } else {
+      const vParam = current.params['v'];
+      if (vParam) {
+        version = Number(vParam) || version;
+      }
+    }
   }
 
-  return blocks;
+  if (version !== 1) {
+    throw new ParseError(1, `Unsupported Cobble format version: ${version} (only v=1 supported)`);
+  }
+
+  return { version, blocks };
 }
 
 /** Error thrown when the parser encounters invalid syntax. */

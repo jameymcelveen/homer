@@ -1,0 +1,17 @@
+[COBBLE v=1]
+
+[ROOT]
+path=%CWD%/sandbox
+
+[WRITE-FILE]
+name=notes.txt
+<%
+line one
+%>
+
+[APPEND]
+name=notes.txt
+id=extra
+<%
+line two
+%>

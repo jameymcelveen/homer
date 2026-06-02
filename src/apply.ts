@@ -2,9 +2,23 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Journal, Op, UndoRecord } from './types.js';
 import { buildPlan, opAbsolutePath } from './plan.js';
+import { hashScript, recordApplied } from './once.js';
 
 const JOURNAL_DIR = '.cobble';
 const JOURNAL_FILE = 'journal.json';
+
+/** Options for apply. */
+export interface ApplyOptions {
+  once?: boolean;
+  cwd?: string;
+}
+
+/** Result of an apply operation. */
+export interface ApplyResult {
+  root: string;
+  recordCount: number;
+  skipped: boolean;
+}
 
 /** Path to the journal file under a jail root. */
 export function journalPath(root: string): string {
@@ -51,6 +65,9 @@ export function executeOps(root: string, ops: Op[]): UndoRecord[] {
     switch (op.kind) {
       case 'mkdir': {
         const prior = capturePrior(abs);
+        if (prior.existed) {
+          break;
+        }
         records.push({
           kind: op.kind,
           path: op.path,
@@ -62,6 +79,9 @@ export function executeOps(root: string, ops: Op[]): UndoRecord[] {
       }
       case 'write': {
         const prior = capturePrior(abs);
+        if (prior.content === op.content) {
+          break;
+        }
         records.push({
           kind: op.kind,
           path: op.path,
@@ -74,6 +94,10 @@ export function executeOps(root: string, ops: Op[]): UndoRecord[] {
       }
       case 'append': {
         const prior = capturePrior(abs);
+        const priorContent = prior.content ?? '';
+        if (priorContent.includes(op.content)) {
+          break;
+        }
         records.push({
           kind: op.kind,
           path: op.path,
@@ -86,6 +110,9 @@ export function executeOps(root: string, ops: Op[]): UndoRecord[] {
       }
       case 'replace': {
         const prior = capturePrior(abs);
+        if (prior.content === op.resultContent) {
+          break;
+        }
         records.push({
           kind: op.kind,
           path: op.path,
@@ -98,15 +125,16 @@ export function executeOps(root: string, ops: Op[]): UndoRecord[] {
       }
       case 'delete': {
         const prior = capturePrior(abs);
+        if (!prior.existed || prior.content === null) {
+          break;
+        }
         records.push({
           kind: op.kind,
           path: op.path,
           priorContent: prior.content,
           priorExisted: prior.existed,
         });
-        if (prior.existed && prior.content !== null) {
-          fs.unlinkSync(abs);
-        }
+        fs.unlinkSync(abs);
         break;
       }
     }
@@ -118,11 +146,16 @@ export function executeOps(root: string, ops: Op[]): UndoRecord[] {
 /** Apply a .cobble file: execute ops and write journal. */
 export function applyFile(
   cobblePath: string,
-  cwd: string = process.cwd(),
-): { root: string; recordCount: number } {
+  options: ApplyOptions = {},
+): ApplyResult {
+  const cwd = options.cwd ?? process.cwd();
   const source = fs.readFileSync(cobblePath, 'utf8');
   const { root, ops } = buildPlan(source, cwd);
   const records = executeOps(root, ops);
+
+  if (records.length === 0) {
+    return { root, recordCount: 0, skipped: true };
+  }
 
   const journal: Journal = {
     timestamp: new Date().toISOString(),
@@ -131,5 +164,14 @@ export function applyFile(
   };
   writeJournal(root, journal);
 
-  return { root, recordCount: records.length };
+  if (options.once) {
+    recordApplied(root, {
+      hash: hashScript(source),
+      scriptPath: cobblePath,
+      appliedAt: new Date().toISOString(),
+      root,
+    });
+  }
+
+  return { root, recordCount: records.length, skipped: false };
 }

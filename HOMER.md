@@ -1,55 +1,62 @@
 # HOMER.md — Session bridge (Garfield → Homer)
 
 **Repo:** homer  
-**Status:** 🟢 GREEN (local tests pass; CI configured, unverified on push)  
-**Tag:** `v0.1.0-cobble`  
+**Status:** 🟢 GREEN (27/27 tests local; CI pending push)  
+**Tag:** `v0.2.0-cobble`  
 **Last updated:** 2026-06-02
 
 ---
 
-## Current work: Cobble v0.1.0
+## Current work: Cobble v0.2.0
 
-Scaffolded **Cobble** — declarative filesystem DSL + plan/apply CLI per PROMPT.md.
+Shipped README, convergent idempotency, `--once` migration mode, global npm package polish.
 
-### Deliverables
+### npm package
 
-| Item | Path | Status |
-|------|------|--------|
-| Spec | `SPEC.md` | Done |
-| CLI | `src/cli.ts` → `cobble plan\|apply\|undo` | Done |
-| Tests | `src/test/*.test.ts` (19 tests) | Green |
-| CI | `.github/workflows/ci.yml` | Done |
-| Sample | `examples/sample.cobble` | Done |
+**Name:** `@jameymcelveen/cobble` (unscoped `cobble` is taken on npm — v2.0.2 object-composition lib)
 
-### Verb set (v1)
+```bash
+npm install -g @jameymcelveen/cobble
+```
 
-- `ROOT` — meta, declares jail root (no disk op)
-- `ENSURE-DIR` — idempotent mkdir -p
-- `WRITE-FILE` — create/overwrite + heredoc body
-- `APPEND` — append + heredoc body
-- `REPLACE` — marker (`<!--cobble:start id-->`) or `find=` literal + body
-- `DELETE-FILE` — remove file
+### v0.2 deliverables
 
-**No `RUN`/exec.** Verified by `no-exec.test.ts` (grep for `child_process`, `exec`, `spawn`, `eval`).
+| Item | Status |
+|------|--------|
+| README.md (Cobble docs + gif) | Done |
+| Guarded APPEND (`id=` + sentinels) | Done |
+| End-state idempotent diff | Done |
+| `apply --once` + drift warning | Done |
+| chalk colors + @clack/prompts | Done |
+| `cobble init` | Done |
+| `[COBBLE v=1]` format header | Done |
+| Test fixtures + cleanup helpers | Done |
+| npm publish config (`files`, `prepublishOnly`) | Done |
+
+### Per-verb idempotency
+
+| Verb | Behavior on re-run |
+|------|-------------------|
+| `ENSURE-DIR` | No-op if directory exists |
+| `WRITE-FILE` | No-op if file content matches |
+| `APPEND` | Guarded — skips if `<!--cobble:append id-->` block present |
+| `REPLACE` | No-op if result content matches (marker or find mode) |
+| `DELETE-FILE` | No-op if file already absent |
+| `plan` diff | End-state comparison — empty diff when tree matches desired state |
+
+### Safety
+
+No exec / shell / AI paths. Enforced by `no-exec.test.ts`.
 
 ### Quick commands
 
 ```bash
-npm install && npm run build
+npm test
 node dist/cli.js plan examples/sample.cobble
 node dist/cli.js apply examples/sample.cobble --yes
-node dist/cli.js undo
-npm test
+node dist/cli.js init
 ```
-
-### Acceptance criteria
-
-1. ✅ `cobble plan` prints diff, writes nothing
-2. ✅ `apply` → `undo` round-trips tree (integration test)
-3. ✅ Jail escape rejected at plan time
-4. ✅ No exec capability in codebase
-5. 🟡 CI green — workflow present; pending first push
 
 ---
 
-🖖 Garfield — session complete
+🖖 Garfield — v0.2 session complete

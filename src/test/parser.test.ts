@@ -15,7 +15,8 @@ hello
 world
 %>
 `;
-    const blocks = parse(source);
+    const { version, blocks } = parse(source);
+    assert.equal(version, 1);
     assert.equal(blocks.length, 2);
     assert.equal(blocks[0]?.verb, 'ROOT');
     assert.equal(blocks[0]?.params['path'], '/tmp/test');
@@ -24,8 +25,19 @@ world
     assert.equal(blocks[1]?.body, 'hello\nworld');
   });
 
+  it('parses [COBBLE v=1] format header', () => {
+    const { version, blocks } = parse('[COBBLE v=1]\n\n[ROOT]\npath=/tmp\n');
+    assert.equal(version, 1);
+    assert.equal(blocks.length, 1);
+  });
+
+  it('parses [COBBLE] block with v= param', () => {
+    const { version } = parse('[COBBLE]\nv=1\n\n[ROOT]\npath=/tmp\n');
+    assert.equal(version, 1);
+  });
+
   it('ignores comments and blank lines', () => {
-    const blocks = parse('# comment\n\n[ENSURE-DIR]\npath=src\n');
+    const { blocks } = parse('# comment\n\n[ENSURE-DIR]\npath=src\n');
     assert.equal(blocks.length, 1);
     assert.equal(blocks[0]?.verb, 'ENSURE-DIR');
   });
