@@ -1,62 +1,38 @@
 # HOMER.md — Session bridge (Garfield → Homer)
 
 **Repo:** homer  
-**Status:** 🟢 GREEN (27/27 tests local; CI pending push)  
-**Tag:** `v0.2.0-cobble`  
+**Status:** 🟢 GREEN (30/30 tests local; CI pending push)  
+**Tag:** `v0.3.0-cobble`  
 **Last updated:** 2026-06-02
 
 ---
 
-## Current work: Cobble v0.2.0
+## Current work: Cobble editor support (v0.3.0)
 
-Shipped README, convergent idempotency, `--once` migration mode, global npm package polish.
+Single TextMate grammar + VSCode extension + JetBrains TextMate bundle import.
+
+### Deliverables
+
+| Item | Path |
+|------|------|
+| Grammar (source of truth) | `editors/vscode/syntaxes/cobble.tmLanguage.json` |
+| VSCode extension | `editors/vscode/` |
+| JetBrains TextMate bundle | `editors/jetbrains-textmate/Cobble.tmbundle/` (symlink to grammar) |
+| Grammar tests | `src/test/grammar.test.ts` |
 
 ### npm package
 
-**Name:** `@jameymcelveen/cobble` (unscoped `cobble` is taken on npm — v2.0.2 object-composition lib)
-
-```bash
-npm install -g @jameymcelveen/cobble
-```
-
-### v0.2 deliverables
-
-| Item | Status |
-|------|--------|
-| README.md (Cobble docs + gif) | Done |
-| Guarded APPEND (`id=` + sentinels) | Done |
-| End-state idempotent diff | Done |
-| `apply --once` + drift warning | Done |
-| chalk colors + @clack/prompts | Done |
-| `cobble init` | Done |
-| `[COBBLE v=1]` format header | Done |
-| Test fixtures + cleanup helpers | Done |
-| npm publish config (`files`, `prepublishOnly`) | Done |
-
-### Per-verb idempotency
-
-| Verb | Behavior on re-run |
-|------|-------------------|
-| `ENSURE-DIR` | No-op if directory exists |
-| `WRITE-FILE` | No-op if file content matches |
-| `APPEND` | Guarded — skips if `<!--cobble:append id-->` block present |
-| `REPLACE` | No-op if result content matches (marker or find mode) |
-| `DELETE-FILE` | No-op if file already absent |
-| `plan` diff | End-state comparison — empty diff when tree matches desired state |
-
-### Safety
-
-No exec / shell / AI paths. Enforced by `no-exec.test.ts`.
+**`@jameymcelveen/cobble`** v0.2.0 — publish via `make deploy` or GitHub Deploy workflow (`NPM_TOKEN` secret).
 
 ### Quick commands
 
 ```bash
-npm test
-node dist/cli.js plan examples/sample.cobble
-node dist/cli.js apply examples/sample.cobble --yes
-node dist/cli.js init
+make test
+# VSCode local install:
+ln -sf "$(pwd)/editors/vscode" ~/.cursor/extensions/cobble-jameymcelveen
+# JetBrains: Settings → Editor → TextMate Bundles → add editors/jetbrains-textmate/Cobble.tmbundle
 ```
 
 ---
 
-🖖 Garfield — v0.2 session complete
+🖖 Garfield — v0.3 editors session complete

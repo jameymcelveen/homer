@@ -1,0 +1,94 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Cobble",
+  "scopeName": "source.cobble",
+  "patterns": [
+    { "include": "#heredoc" },
+    { "include": "#comments" },
+    { "include": "#cobble-version-header" },
+    { "include": "#verb-header" },
+    { "include": "#params" },
+    { "include": "#variables" }
+  ],
+  "repository": {
+    "comments": {
+      "name": "comment.line.number-sign.cobble",
+      "match": "#.*$"
+    },
+    "cobble-version-header": {
+      "name": "entity.name.section.cobble",
+      "match": "^\\[COBBLE\\s+v=(\\d+)\\]\\s*$",
+      "captures": {
+        "1": {
+          "name": "constant.numeric.version.cobble"
+        }
+      }
+    },
+    "verb-header": {
+      "patterns": [
+        {
+          "name": "entity.name.section.cobble",
+          "match": "^\\[(ROOT|COBBLE|ENSURE-DIR|WRITE-FILE|APPEND|REPLACE|DELETE-FILE)\\]\\s*$"
+        }
+      ]
+    },
+    "params": {
+      "name": "meta.parameter.cobble",
+      "match": "^([a-zA-Z][a-zA-Z0-9_-]*)=(.*)$",
+      "captures": {
+        "1": {
+          "name": "variable.parameter.cobble"
+        },
+        "2": {
+          "name": "string.unquoted.value.cobble",
+          "patterns": [
+            { "include": "#variables" }
+          ]
+        }
+      }
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "constant.language.variable.cobble",
+          "match": "%HOME%"
+        },
+        {
+          "name": "constant.language.variable.cobble",
+          "match": "%CWD%"
+        },
+        {
+          "name": "constant.language.variable.cobble",
+          "match": "%ENV:[A-Z_][A-Z0-9_]+%"
+        }
+      ]
+    },
+    "markers": {
+      "patterns": [
+        {
+          "name": "comment.block.marker.cobble",
+          "match": "<!--cobble:(?:start|append(?:-end)?)\\s?[^>]*-->|<!--cobble:end-->"
+        }
+      ]
+    },
+    "heredoc": {
+      "name": "string.unquoted.heredoc.cobble",
+      "begin": "<%",
+      "end": "%>",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.heredoc.begin.cobble"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.heredoc.end.cobble"
+        }
+      },
+      "patterns": [
+        { "include": "#variables" },
+        { "include": "#markers" }
+      ]
+    }
+  }
+}

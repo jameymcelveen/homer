@@ -1,0 +1,47 @@
+{
+  "name": "cobble",
+  "displayName": "Cobble",
+  "description": "Syntax highlighting for Cobble .cobble declarative filesystem DSL",
+  "version": "0.3.0",
+  "publisher": "jameymcelveen",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "cobble",
+    "declarative",
+    "filesystem",
+    "dsl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jameymcelveen/homer.git",
+    "directory": "editors/vscode"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "cobble",
+        "aliases": [
+          "Cobble",
+          "cobble"
+        ],
+        "extensions": [
+          ".cobble"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "cobble",
+        "scopeName": "source.cobble",
+        "path": "./syntaxes/cobble.tmLanguage.json"
+      }
+    ]
+  }
+}

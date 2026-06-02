@@ -182,6 +182,19 @@ npm test
 
 ---
 
+## Editor support
+
+Syntax highlighting for `.cobble` via a **single TextMate grammar** consumed by two editors:
+
+| Editor | Path | Install |
+|--------|------|---------|
+| VSCode / Cursor | [`editors/vscode/`](./editors/vscode/) | Symlink or VSIX — see [README](./editors/vscode/README.md) |
+| JetBrains IDEs | [`editors/jetbrains-textmate/`](./editors/jetbrains-textmate/) | TextMate bundle import — see [README](./editors/jetbrains-textmate/README.md) |
+
+Grammar source of truth: `editors/vscode/syntaxes/cobble.tmLanguage.json` (JetBrains symlinks to it).
+
+---
+
 ## About this repo
 
 This repository is also **Homer's home** — the Product Owner replicant in Jamey's Bobiverse.
