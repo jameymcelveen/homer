@@ -24,9 +24,23 @@ From source:
 
 ```bash
 git clone https://github.com/jameymcelveen/homer.git
-cd homer && npm install && npm run build
-npm link   # or: node dist/cli.js plan examples/sample.cobble
+cd homer && make install      # build + npm link → global `cobble` CLI
+make test                     # run the test suite
+make uninstall                # remove the npm link when done
 ```
+
+Or without Make: `npm install && npm run build && npm link`
+
+### Publish to npm
+
+Local (requires `npm login`):
+
+```bash
+make deploy                   # test, then npm publish
+```
+
+CI: push a tag matching `v*-cobble` (e.g. `v0.2.0-cobble`) or run the **Deploy** workflow manually.
+Requires `NPM_TOKEN` in repo secrets ([npm access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) with publish scope).
 
 ---
 

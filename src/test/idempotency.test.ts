@@ -92,7 +92,7 @@ describe('sample fixture tape', () => {
       const sandbox = path.join(tmp, 'examples', 'sandbox');
       const source = fs
         .readFileSync(path.resolve(import.meta.dirname, '../../examples/sample.cobble'), 'utf8')
-        .replace(/%CWD%/g, path.join(tmp, 'examples'));
+        .replace(/%CWD%/g, tmp);
       const cobble = writeScript(tmp, 'sample.cobble', source);
 
       const { root, ops } = buildPlan(source, tmp);
