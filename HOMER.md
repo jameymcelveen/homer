@@ -1,38 +1,32 @@
 # HOMER.md — Session bridge (Garfield → Homer)
 
 **Repo:** homer  
-**Status:** 🟢 GREEN (30/30 tests local; CI pending push)  
-**Tag:** `v0.3.0-cobble`  
+**Status:** 🟢 GREEN  
 **Last updated:** 2026-06-02
 
 ---
 
-## Current work: Cobble editor support (v0.3.0)
+## Repo split: Cobble moved out
 
-Single TextMate grammar + VSCode extension + JetBrains TextMate bundle import.
+**Cobble** now lives in its own repo — no PI mixed with product code.
 
-### Deliverables
+| Repo | Purpose |
+|------|---------|
+| [github.com/jameymcelveen/homer](https://github.com/jameymcelveen/homer) | Homer PI — Me-Burger, protocols, session bridge |
+| [github.com/jameymcelveen/cobble](https://github.com/jameymcelveen/cobble) | Cobble CLI, grammar, editors, tests, npm package |
 
-| Item | Path |
-|------|------|
-| Grammar (source of truth) | `editors/vscode/syntaxes/cobble.tmLanguage.json` |
-| VSCode extension | `editors/vscode/` |
-| JetBrains TextMate bundle | `editors/jetbrains-textmate/Cobble.tmbundle/` (symlink to grammar) |
-| Grammar tests | `src/test/grammar.test.ts` |
+Homer README links to Cobble. Cobble does **not** link back to Homer or contain PI.
 
-### npm package
-
-**`@jameymcelveen/cobble`** v0.2.0 — publish via `make deploy` or GitHub Deploy workflow (`NPM_TOKEN` secret).
-
-### Quick commands
+### Cobble repo quick ref
 
 ```bash
+cd ~/Developer/Cobble   # or clone github.com/jameymcelveen/cobble
 make test
-# VSCode local install:
-ln -sf "$(pwd)/editors/vscode" ~/.cursor/extensions/cobble-jameymcelveen
-# JetBrains: Settings → Editor → TextMate Bundles → add editors/jetbrains-textmate/Cobble.tmbundle
+make deploy             # npm publish @jameymcelveen/cobble
 ```
+
+Tags: `v0.3.0` etc. (no `-cobble` suffix needed in the dedicated repo).
 
 ---
 
-🖖 Garfield — v0.3 editors session complete
+🖖 Garfield — homer/cobble split complete

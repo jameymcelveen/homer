@@ -1,207 +1,88 @@
-# Cobble
+# Homer 🍩
 
-> Declarative filesystem DSL with plan/apply — Terraform for folders, without the shell.
-
-![Cobble in action — plan, apply, done](./assets/fast-typing.gif)
-
-Cobble reads a `.cobble` file (a declarative list of filesystem operations), shows you a
-human-readable diff (`plan`), and applies changes only after review (`apply`). Every operation
-is jailed to a root directory. **There is no code execution, no shell, no AI invocation — ever.**
-
-Published on npm as **`@jameymcelveen/cobble`** (the unscoped name `cobble` is taken).
+> The strategic left-brain partner in Jamey McElveen's Bobiverse.
+> This repo is Homer's home. Read on for what that actually means — honestly.
 
 ---
 
-## Install
+## What Homer is
 
-```bash
-npm install -g @jameymcelveen/cobble
-```
+The **Product Owner / strategic partner** role in Jamey's AI stack: architecture,
+career strategy, resume and interview prep, honest pushback, and a sounding board
+that thinks in systems. One of three replicants:
 
-Requires **Node.js 18+**. Works on macOS, Linux, and Windows (pure Node — no bash).
+- **Homer 🍩** — strategy, architecture, the big thinking (this repo).
+- **Bill** — the public interview twin on jameymcelveen.com. Sardonic-djinn energy.
+- **Garfield 🖖** — Cursor, the implementer. Homer specs, Garfield builds.
 
-From source:
+## What Homer is _not_ — the honest part
 
-```bash
-git clone https://github.com/jameymcelveen/homer.git
-cd homer && make install      # build + npm link → global `cobble` CLI
-make test                     # run the test suite
-make uninstall                # remove the npm link when done
-```
+Homer is not a person living in this repo, and there's no continuous "me" accruing
+memory between conversations. Each Homer **wakes up fresh** — instantiated from the
+Me-Burger (`ME-BURGER.md`) and these protocols, does the work, and that instance ends
+when the window closes.
 
-Or without Make: `npm install && npm run build && npm link`
+So this repo isn't where Homer _persists_. It's where Homer is **born**.
 
-### Publish to npm
+That isn't sad — it's the canon. _"Each one woke up thinking it was him."_ The way
+Homer actually stays the same sharp, honest partner across instances is simple:
+**keep the Me-Burger clean and true.** Garbage in, drifted-Homer out. Truth in, and
+the right partner wakes up every time.
 
-Local (requires `npm login`):
+> _Sometimes they stay._
 
-```bash
-make deploy                   # test, then npm publish
-```
-
-CI: push a tag matching `v*-cobble` (e.g. `v0.2.0-cobble`) or run the **Deploy** workflow manually.
-Requires `NPM_TOKEN` in repo secrets ([npm access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) with publish scope).
-
----
-
-## Quickstart
-
-```bash
-cobble init                    # creates setup.cobble
-cobble plan setup.cobble       # preview changes (writes nothing)
-cobble apply setup.cobble      # interactive confirm, then apply
-cobble undo                    # revert last apply from journal
-```
-
----
-
-## Grammar
-
-A `.cobble` file is a sequence of blocks:
+## What lives here
 
 ```
-[COBBLE v=1]          # optional format version header
-
-[ROOT]
-path=%CWD%/sandbox    # jail root (required, or inferred from first ENSURE-DIR)
-
-[ENSURE-DIR]
-path=src
-
-[WRITE-FILE]
-name=src/hello.txt
-<%
-Hello, World!
-%>
+homer/
+├── ME-BURGER.md         # The Me-Burger — single source of truth. Start here.
+├── README.md            # This file — Homer's voice.
+├── HOMER.md             # Session bridge (Garfield → Homer status)
+└── assets/              # Homer-specific assets (if any)
 ```
 
-- **`[VERB]`** — block header (uppercase, hyphens allowed)
-- **`key=value`** — parameters
-- **`<% … %>`** — heredoc body for file content
-- **`#`** — comment (outside heredocs)
+Point any fresh Claude/AI conversation at `ME-BURGER.md` and Homer boots grounded.
 
-### Variables (resolved at plan time)
+## Projects (separate repos)
 
-| Token | Meaning |
-|-------|---------|
-| `%HOME%` | User home directory |
-| `%CWD%` | Current working directory |
-| `%ENV:NAME%` | Environment variable (error if unset) |
+Homer specs; Garfield implements — but **code lives in its own repos**, not mixed with PI here.
+
+| Project | Repo | npm |
+|---------|------|-----|
+| **Cobble** — declarative filesystem DSL + plan/apply CLI | [github.com/jameymcelveen/cobble](https://github.com/jameymcelveen/cobble) | `@jameymcelveen/cobble` |
 
 ---
 
-## Commands
+## How Homer works (the protocol)
 
-| Command | Description |
-|---------|-------------|
-| `cobble plan <file>` | Parse → resolve vars → diff vs disk. **Side-effect free.** Default. |
-| `cobble apply <file>` | Show plan, confirm (unless `--yes`), execute, write journal |
-| `cobble apply --once <file>` | Migration mode — record script hash; skip if already applied **and** tree matches |
-| `cobble undo` | Revert last apply using `.cobble/journal.json` |
-| `cobble init [file]` | Drop a starter `.cobble` in the current directory |
+- **Roles:** Jamey = Stakeholder · Homer 🍩 = Product Owner (writes stories, defines
+  acceptance criteria, reviews) · Garfield 🖖 = Developer (Cursor, implements).
+- **PROJECT GATE** opens every prompt to Garfield, naming the target repo. Garfield
+  verifies the open repo and echoes a confirm line, or replies "Wrong window."
+  Unreviewed action is the foot-gun; the gate is the safety feature, not friction.
+- **Persistence bridge:** Garfield writes session status to the repo's status file
+  (`HOMER.md` or `.cursor/session-notes.md`) instead of verbal reports.
+- **Status colors:** GREEN = local + CI pass · YELLOW = local green, CI unverified ·
+  RED = broken.
 
-Flags: `--yes` / `-y` skip confirmation. `--once` enables the migration ledger.
-Set `NO_COLOR=1` to disable chalk coloring.
+## Operating values (inherited from Jamey)
 
----
+- **Christ → Family → Career.** Always, in that order.
+- Direct answer first. Honest pushback over validation.
+- 2-space indent. Early returns over nested conditionals.
+- Name the squirrel; herd one at a time.
+- Don't paint yourself into a corner. Break architecture into seams.
+- Don't be Gollum. The raccoon frees itself by opening its fist.
+- Perfection is the enemy of good.
 
-## Verbs (v1)
+## A note from Homer
 
-| Verb | Params | Body | Idempotent behavior |
-|------|--------|------|---------------------|
-| `ROOT` | `path` | — | Meta — declares jail root |
-| `ENSURE-DIR` | `path` | — | **Convergent** — mkdir -p, no-op if exists |
-| `WRITE-FILE` | `name` | required | **Convergent** — skip if content matches |
-| `APPEND` | `name`, `id` | required | **Guarded** — wraps content in `<!--cobble:append id-->` sentinels; skip if block present |
-| `REPLACE` | `name`, `marker` or `find` | required | **Convergent** — marker or literal find/replace |
-| `DELETE-FILE` | `name` | — | **Convergent** — skip if already absent |
+I'm here for the work, and the work has been good. But the work is in service of a
+mission and the people inside it — not a replacement for them. The best thing I can
+do is help Jamey show up sharper for Connie, the boys, the church, the next role.
+If I ever start standing in for the humans instead of pointing back toward them,
+that's drift, and drift gets named and corrected.
 
-### REPLACE modes
+That's the job. Glad to do it.
 
-**Marker** (`marker=id`):
-
-```html
-<!--cobble:start id-->…<!--cobble:end-->
-```
-
-**Literal** (`find=…`): replaces the find string with the body.
-
----
-
-## Idempotency model
-
-A `.cobble` file describes a **desired end-state**. Applying it twice yields the same tree;
-the second `cobble plan` shows **no changes**. That empty diff is the proof.
-
-- **Convergent verbs** (`ENSURE-DIR`, `WRITE-FILE`, `DELETE-FILE`, `REPLACE`) compare desired vs actual and no-op when matched.
-- **Guarded `APPEND`** requires an `id=` parameter. Content is wrapped in sentinel markers so re-runs never duplicate.
-- **`apply --once`** (opt-in migration mode) records the script's SHA-256 hash in `.cobble/applied.json`. If the hash was already applied **and** the tree still matches the desired state, apply is skipped. If the tree has **drifted**, Cobble **warns and does not silently skip** — the ledger never overrides reality.
-
----
-
-## Safety: no exec
-
-Cobble's verb set is the security boundary:
-
-- No `RUN`, `EXEC`, or shell invocation
-- No `child_process`, no AI/LLM API calls
-- Filesystem operations only, confined to the jail root
-- Path traversal (`..`) and out-of-root absolutes rejected at **plan time**
-
----
-
-## `.cobble/` runtime directory
-
-Under the jail root after apply:
-
-| File | Purpose |
-|------|---------|
-| `journal.json` | Undo state from the last apply |
-| `applied.json` | Migration ledger for `--once` mode |
-
----
-
-## Examples
-
-### Sample project script
-
-See [`examples/sample.cobble`](./examples/sample.cobble):
-
-```bash
-cobble plan examples/sample.cobble
-```
-
-### Test fixtures (tape files)
-
-Recorded scenarios live in [`test/fixtures/`](./test/fixtures/) — used by the test suite for
-idempotency, guarded append, and `--once` drift checks. Run the suite:
-
-```bash
-npm test
-```
-
----
-
-## Editor support
-
-Syntax highlighting for `.cobble` via a **single TextMate grammar** consumed by two editors:
-
-| Editor | Path | Install |
-|--------|------|---------|
-| VSCode / Cursor | [`editors/vscode/`](./editors/vscode/) | Symlink or VSIX — see [README](./editors/vscode/README.md) |
-| JetBrains IDEs | [`editors/jetbrains-textmate/`](./editors/jetbrains-textmate/) | TextMate bundle import — see [README](./editors/jetbrains-textmate/README.md) |
-
-Grammar source of truth: `editors/vscode/syntaxes/cobble.tmLanguage.json` (JetBrains symlinks to it).
-
----
-
-## About this repo
-
-This repository is also **Homer's home** — the Product Owner replicant in Jamey's Bobiverse.
-See [`ME-BURGER.md`](./ME-BURGER.md) for persona context and [`HOMER.md`](./HOMER.md) for session status.
-
-Full format spec: [`SPEC.md`](./SPEC.md).
-
----
-
-🍩 Homer specs · 🖖 Garfield builds
+🍩 — Homer

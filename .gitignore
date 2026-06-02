@@ -25,37 +25,9 @@ desktop.ini
 !.idea/scopes/
 
 *.swp
-
 *~
-
-# --- Node ---
-node_modules/
-npm-debug.log*
-yarn-error.log*
-.pnpm-store/
-
-# --- Python ---
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-
-# --- .NET ---
-bin/
-obj/
-
-# --- Build / output ---
-dist/
-build/
-out/
-.next/
 
 # --- Logs / scratch ---
 *.log
 /tmp/
 /scratch/
-
-# --- Cobble runtime ---
-examples/sandbox/
-**/.cobble/
-
