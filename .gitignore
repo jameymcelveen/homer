@@ -1,0 +1,48 @@
+# --- Secrets: never commit (the one rule that matters most) ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+secrets.*
+**/appsettings.*.local.json
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editors / IDE ---
+.vscode/
+.idea/
+*.swp
+*~
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- .NET ---
+bin/
+obj/
+
+# --- Build / output ---
+dist/
+build/
+out/
+.next/
+
+# --- Logs / scratch ---
+*.log
+/tmp/
+/scratch/
+
